@@ -8,9 +8,21 @@ pub struct Timba {
     pub deadline: Option<String>,
 }
 
+#[derive(Serialize, Clone, Debug)]
+pub struct TimbaCreatedEvent {
+    pub id: i64,
+    pub name: String,
+    pub time_of_creation: String,
+}
+
 #[derive(Serialize)]
 pub struct CreateTimbaResponse {
     pub id: i64,
+}
+
+#[derive(Deserialize)]
+pub struct VoteRequest {
+    pub choices: Vec<String>,
 }
 
 #[derive(Serialize)]
@@ -36,6 +48,14 @@ pub struct TimbaInfo {
     pub ty: String,
     pub votes: Vec<VoteCount>,
     pub total_votes: i64,
+}
+
+#[derive(Serialize)]
+pub struct Stats {
+    pub total_timbas: i64,
+    pub total_votes: i64,
+    pub oldest_timba: Option<String>,
+    pub newest_timba: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]

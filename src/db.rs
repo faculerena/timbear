@@ -65,6 +65,20 @@ async fn initialize_database(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         e
     })?;
 
+    debug!("creando indice para deduplicacion de votos");
+    sqlx::query(
+        r#"
+        CREATE INDEX IF NOT EXISTS idx_votes_timba_voter
+        ON votes(timba_id, voter_identifier)
+        "#,
+    )
+    .execute(pool)
+    .await
+    .map_err(|e| {
+        error!("fallo creando indice: {}", e);
+        e
+    })?;
+
     debug!("schema listo");
 
     Ok(())

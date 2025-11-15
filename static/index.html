@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timbear - Sistema de Timbas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .secondary-btn {
+            background: #764ba2;
+        }
+
+        .secondary-btn:hover {
+            background: #663a8f;
+        }
+
+        #fields-container {
+            margin-bottom: 10px;
+        }
+
+        .field-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .field-item input {
+            flex: 1;
+        }
+
+        .field-item button {
+            padding: 10px 15px;
+            background: #e74c3c;
+        }
+
+        .field-item button:hover {
+            background: #c0392b;
+        }
+
+        #events-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+        }
+
+        .event-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .event-item strong {
+            color: #667eea;
+        }
+
+        .event-item small {
+            color: #666;
+            display: block;
+            margin-top: 5px;
+        }
+
+        #timba-result,
+        #vote-result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        #timba-display {
+            margin-top: 15px;
+        }
+
+        .vote-option {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .vote-bar {
+            height: 25px;
+            background: #667eea;
+            border-radius: 3px;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            color: white;
+            font-weight: bold;
+            min-width: 50px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .connection-status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Vote options styling */
+        .vote-choice-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .vote-choice-item:hover {
+            background: #e9ecef;
+        }
+
+        .vote-choice-item input[type="radio"],
+        .vote-choice-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .vote-choice-item label {
+            flex: 1;
+            cursor: pointer;
+            margin: 0;
+            font-weight: normal;
+        }
+
+        #vote-options {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .timba-info-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Timbear</h1>
+
+        <div class="section">
+            <h2>Stream de Timbas en Tiempo Real</h2>
+            <div id="stream-status" class="connection-status disconnected">
+                Desconectado del stream
+            </div>
+            <div id="events-list">
+                <p style="color: #666; text-align: center;">Las nuevas timbas apareceran aca...</p>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="section">
+                <h2>Crear Nueva Timba</h2>
+                <form id="create-form">
+                    <div class="form-group">
+                        <label for="timba-name">Nombre de la Timba:</label>
+                        <input type="text" id="timba-name" placeholder="ej: Donde almorzamos?" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="timba-type">Tipo:</label>
+                        <select id="timba-type" required>
+                            <option value="Simple">Simple (una opcion)</option>
+                            <option value="Multiple">Multiple (multiples opciones)</option>
+                            <option value="YN">Si/No</option>
+                            <option value="Scale">Escala</option>
+                        </select>
+                    </div>
+
+                    <div id="scale-options" style="display: none;">
+                        <div class="form-group">
+                            <label for="scale-lower">Valor minimo:</label>
+                            <input type="number" id="scale-lower" value="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="scale-upper">Valor maximo:</label>
+                            <input type="number" id="scale-upper" value="10">
+                        </div>
+                    </div>
+
+                    <div id="fields-section">
+                        <div class="form-group">
+                            <label>Opciones:</label>
+                            <div id="fields-container">
+                                <div class="field-item">
+                                    <input type="text" class="field-input" placeholder="Opcion 1" required>
+                                    <button type="button" onclick="removeField(this)">✕</button>
+                                </div>
+                                <div class="field-item">
+                                    <input type="text" class="field-input" placeholder="Opcion 2" required>
+                                    <button type="button" onclick="removeField(this)">✕</button>
+                                </div>
+                            </div>
+                            <button type="button" onclick="addField()" class="secondary-btn">+ Agregar Opcion</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="timba-deadline">Deadline (opcional):</label>
+                        <input type="text" id="timba-deadline" placeholder="2024-12-31T23:59:59Z">
+                    </div>
+
+                    <button type="submit">Crear Timba</button>
+                </form>
+                <div id="timba-result"></div>
+            </div>
+
+            <div class="section">
+                <h2>Ver Timba</h2>
+                <form id="get-form">
+                    <div class="form-group">
+                        <label for="get-id">ID de la Timba:</label>
+                        <input type="number" id="get-id" placeholder="ej: 1" required>
+                    </div>
+                    <button type="submit">Buscar Timba</button>
+                </form>
+                <div id="timba-display"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Votar</h2>
+            <form id="vote-form">
+                <div class="form-group">
+                    <label for="vote-id">ID de la Timba:</label>
+                    <input type="number" id="vote-id" placeholder="ej: 1" required>
+                    <button type="button" onclick="loadVoteOptions()" class="secondary-btn" style="margin-top: 10px;">Cargar Opciones</button>
+                </div>
+                <div id="vote-options-container" style="display: none;">
+                    <div class="form-group">
+                        <label id="vote-options-label">Tus Opciones:</label>
+                        <div id="vote-options"></div>
+                    </div>
+                    <button type="submit">Votar</button>
+                </div>
+            </form>
+            <div id="vote-result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        let eventSource = null;
+
+        // Manejo del tipo de timba
+        document.getElementById('timba-type').addEventListener('change', function () {
+            const scaleOptions = document.getElementById('scale-options');
+            const fieldsSection = document.getElementById('fields-section');
+
+            if (this.value === 'Scale') {
+                scaleOptions.style.display = 'block';
+                fieldsSection.style.display = 'none';
+            } else {
+                scaleOptions.style.display = 'none';
+                fieldsSection.style.display = 'block';
+
+                if (this.value === 'YN') {
+                    // Para YN, forzar exactamente 2 opciones
+                    const container = document.getElementById('fields-container');
+                    container.innerHTML = `
+                        <div class="field-item">
+                            <input type="text" class="field-input" value="Si" required>
+                        </div>
+                        <div class="field-item">
+                            <input type="text" class="field-input" value="No" required>
+                        </div>
+                    `;
+                }
+            }
+        });
+
+        function addField() {
+            const container = document.getElementById('fields-container');
+            const fieldCount = container.children.length + 1;
+            const div = document.createElement('div');
+            div.className = 'field-item';
+            div.innerHTML = `
+                <input type="text" class="field-input" placeholder="Opcion ${fieldCount}" required>
+                <button type="button" onclick="removeField(this)">✕</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeField(button) {
+            const container = document.getElementById('fields-container');
+            if (container.children.length > 2) {
+                button.parentElement.remove();
+            } else {
+                showResult('timba-result', 'Necesitas al menos 2 opciones', 'error');
+            }
+        }
+
+        function showResult(elementId, message, type) {
+            const resultDiv = document.getElementById(elementId);
+            resultDiv.textContent = message;
+            resultDiv.className = type;
+            resultDiv.style.display = 'block';
+            setTimeout(() => {
+                resultDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Crear timba
+        document.getElementById('create-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('timba-name').value;
+            const typeValue = document.getElementById('timba-type').value;
+            const deadline = document.getElementById('timba-deadline').value || null;
+
+            let ty, fields;
+
+            if (typeValue === 'Scale') {
+                const lower = parseInt(document.getElementById('scale-lower').value);
+                const upper = parseInt(document.getElementById('scale-upper').value);
+                ty = { Scale: [lower, upper] };
+                fields = [];
+            } else {
+                ty = typeValue;
+                fields = Array.from(document.querySelectorAll('.field-input'))
+                    .map(input => input.value)
+                    .filter(val => val.trim() !== '');
+            }
+
+            const payload = { fields, ty, deadline };
+
+            try {
+                const response = await fetch(`${API_URL}/new/${encodeURIComponent(name)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('timba-result', `Timba creada con ID: ${data.id}`, 'success');
+                    document.getElementById('create-form').reset();
+                } else {
+                    showResult('timba-result', 'Error al crear la timba', 'error');
+                }
+            } catch (error) {
+                showResult('timba-result', `Error: ${error.message}`, 'error');
+            }
+        });
+
+        // Ver timba
+        document.getElementById('get-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const id = document.getElementById('get-id').value;
+
+            try {
+                const response = await fetch(`${API_URL}/timba/${id}`);
+
+                if (response.ok) {
+                    const timba = await response.json();
+                    displayTimba(timba);
+                } else if (response.status === 404) {
+                    document.getElementById('timba-display').innerHTML =
+                        '<div class="error">Timba no encontrada</div>';
+                } else {
+                    document.getElementById('timba-display').innerHTML =
+                        '<div class="error">Error al buscar la timba</div>';
+                }
+            } catch (error) {
+                document.getElementById('timba-display').innerHTML =
+                    `<div class="error">Error: ${error.message}</div>`;
+            }
+        });
+
+        function displayTimba(timba) {
+            const maxVotes = Math.max(...timba.votes.map(v => v.count), 1);
+
+            const votesHtml = timba.votes.map(vote => {
+                const percentage = maxVotes > 0 ? (vote.count / maxVotes * 100) : 0;
+                return `
+                    <div class="vote-option">
+                        <div style="flex: 1;">
+                            <strong>${vote.choice}</strong>
+                            <div class="vote-bar" style="width: ${percentage}%">
+                                ${vote.count} votos
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('timba-display').innerHTML = `
+                <div class="info">
+                    <h3>${timba.name}</h3>
+                    <p><strong>ID:</strong> ${timba.id}</p>
+                    <p><strong>Tipo:</strong> ${timba.type}</p>
+                    <p><strong>Creada:</strong> ${new Date(timba.time_of_creation).toLocaleString()}</p>
+                    ${timba.deadline ? `<p><strong>Deadline:</strong> ${new Date(timba.deadline).toLocaleString()}</p>` : ''}
+                    <p><strong>Total de votos:</strong> ${timba.total_votes}</p>
+                    <hr style="margin: 15px 0;">
+                    ${votesHtml}
+                </div>
+            `;
+        }
+
+        // Cargar opciones de voto
+        let currentTimbaData = null;
+
+        async function loadVoteOptions() {
+            const id = document.getElementById('vote-id').value;
+
+            if (!id) {
+                showResult('vote-result', 'Ingresa el ID de la timba primero', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/timba/${id}`);
+
+                if (response.ok) {
+                    const timba = await response.json();
+                    currentTimbaData = timba;
+                    displayVoteOptions(timba);
+                } else if (response.status === 404) {
+                    showResult('vote-result', 'Timba no encontrada', 'error');
+                } else {
+                    showResult('vote-result', 'Error al cargar la timba', 'error');
+                }
+            } catch (error) {
+                showResult('vote-result', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        function displayVoteOptions(timba) {
+            const container = document.getElementById('vote-options-container');
+            const optionsDiv = document.getElementById('vote-options');
+            const label = document.getElementById('vote-options-label');
+
+            // Determinar el tipo de input segun el tipo de timba
+            const isMultiple = timba.type === 'Multiple';
+            const inputType = isMultiple ? 'checkbox' : 'radio';
+
+            label.innerHTML = `${timba.name} <span class="timba-info-badge">${timba.type}</span>`;
+
+            if (isMultiple) {
+                label.innerHTML += '<br><small style="color: #666;">Selecciona todas las que quieras</small>';
+            } else {
+                label.innerHTML += '<br><small style="color: #666;">Selecciona solo una opcion</small>';
+            }
+
+            // Crear opciones
+            let optionsHtml = '';
+            timba.fields.forEach((field, index) => {
+                optionsHtml += `
+                    <div class="vote-choice-item">
+                        <input type="${inputType}" id="choice-${index}" name="vote-choice" value="${field}">
+                        <label for="choice-${index}">${field}</label>
+                    </div>
+                `;
+            });
+
+            optionsDiv.innerHTML = optionsHtml;
+            container.style.display = 'block';
+        }
+
+        // Votar
+        document.getElementById('vote-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const id = document.getElementById('vote-id').value;
+
+            // Obtener las opciones seleccionadas
+            const selectedInputs = document.querySelectorAll('input[name="vote-choice"]:checked');
+            const choices = Array.from(selectedInputs).map(input => input.value);
+
+            if (choices.length === 0) {
+                showResult('vote-result', 'Debes seleccionar al menos una opcion', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/vote/${id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ choices })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('vote-result', data.message, data.success ? 'success' : 'error');
+                    if (data.success) {
+                        // Limpiar seleccion
+                        selectedInputs.forEach(input => input.checked = false);
+                    }
+                } else {
+                    showResult('vote-result', 'Error al votar', 'error');
+                }
+            } catch (error) {
+                showResult('vote-result', `Error: ${error.message}`, 'error');
+            }
+        });
+
+        // SSE Stream
+        async function loadLatestTimbas() {
+            try {
+                const response = await fetch(`${API_URL}/latest`);
+                if (response.ok) {
+                    const timbas = await response.json();
+                    const eventsList = document.getElementById('events-list');
+
+                    // Limpiar el mensaje inicial
+                    eventsList.innerHTML = '';
+
+                    // Agregar las timbas en orden (ya vienen en orden descendente del servidor)
+                    timbas.forEach(timba => {
+                        const eventDiv = document.createElement('div');
+                        eventDiv.className = 'event-item';
+                        eventDiv.innerHTML = `
+                            <strong>${timba.name}</strong> (ID: ${timba.id})
+                            <small>Creada: ${new Date(timba.time_of_creation).toLocaleString()}</small>
+                        `;
+                        eventsList.appendChild(eventDiv);
+                    });
+
+                    if (timbas.length === 0) {
+                        eventsList.innerHTML = '<p style="color: #666; text-align: center;">No hay timbas todavia. Crea una!</p>';
+                    }
+                } else {
+                    console.error('Error al cargar las últimas timbas');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function connectToStream() {
+            if (eventSource) {
+                eventSource.close();
+            }
+
+            eventSource = new EventSource(`${API_URL}/stream`);
+
+            eventSource.onopen = () => {
+                const statusDiv = document.getElementById('stream-status');
+                statusDiv.textContent = 'Conectado al stream - esperando nuevas timbas...';
+                statusDiv.className = 'connection-status connected';
+            };
+
+            eventSource.onmessage = (event) => {
+                const timba = JSON.parse(event.data);
+                addEventToList(timba);
+            };
+
+            eventSource.onerror = (error) => {
+                const statusDiv = document.getElementById('stream-status');
+                statusDiv.textContent = 'Error en la conexion - reintentando...';
+                statusDiv.className = 'connection-status disconnected';
+
+                eventSource.close();
+                setTimeout(connectToStream, 3000);
+            };
+        }
+
+        function addEventToList(timba) {
+            const eventsList = document.getElementById('events-list');
+
+            // Limpiar el mensaje inicial si existe
+            if (eventsList.querySelector('p')) {
+                eventsList.innerHTML = '';
+            }
+
+            const eventDiv = document.createElement('div');
+            eventDiv.className = 'event-item';
+            eventDiv.innerHTML = `
+                <strong>${timba.name}</strong> (ID: ${timba.id})
+                <small>Creada: ${new Date(timba.time_of_creation).toLocaleString()}</small>
+            `;
+
+            // Insertar al principio (nuevas timbas arriba)
+            eventsList.insertBefore(eventDiv, eventsList.firstChild);
+
+            // Limitar a 10 eventos
+            while (eventsList.children.length > 10) {
+                eventsList.removeChild(eventsList.lastChild);
+            }
+        }
+
+        // Cargar las últimas timbas y luego conectar al stream
+        async function initializeTimbasStream() {
+            await loadLatestTimbas();
+            connectToStream();
+        }
+
+        // Inicializar al cargar la pagina
+        initializeTimbasStream();
+    </script>
+</body>
+
+</html>
